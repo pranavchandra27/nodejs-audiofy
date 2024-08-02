@@ -1,8 +1,6 @@
 const express = require("express");
 const textToSpeech = require("@google-cloud/text-to-speech");
 const cors = require("cors");
-const util = require("util");
-const fs = require("fs");
 const dotenv = require("dotenv");
 
 dotenv.config();
@@ -11,8 +9,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+const googleApplicationCredentials = JSON.parse(
+  process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+);
+
 const client = new textToSpeech.TextToSpeechClient({
-  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+  keyFilename: googleApplicationCredentials,
 });
 
 app.post("/synthesize", async (req, res) => {
