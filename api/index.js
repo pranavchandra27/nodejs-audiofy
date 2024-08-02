@@ -9,9 +9,15 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const googleApplicationCredentials = JSON.parse(
-  process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
-);
+let googleApplicationCredentials;
+try {
+  googleApplicationCredentials = JSON.parse(
+    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+  );
+} catch (error) {
+  console.error("Error parsing GOOGLE_APPLICATION_CREDENTIALS_JSON:", error);
+  process.exit(1);
+}
 
 const client = new textToSpeech.TextToSpeechClient({
   credentials: googleApplicationCredentials,
@@ -42,5 +48,4 @@ app.post("/synthesize", async (req, res) => {
   }
 });
 
-// Export the app as a serverless function
 module.exports = app;
