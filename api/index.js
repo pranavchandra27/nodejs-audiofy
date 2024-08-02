@@ -32,7 +32,7 @@ app.get("/", (req, res) => {
 
 app.post("/synthesize", async (req, res) => {
   const { text, voice } = req.body;
-  const voiceName = voice === "FEMALE" ? "en-US-Studio-F" : "en-US-Studio-M";
+  const voiceName = voice === "FEMALE" ? "en-US-Studio-O" : "en-US-Studio-M";
 
   const request = {
     input: { text: text },
