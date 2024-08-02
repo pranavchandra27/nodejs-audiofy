@@ -19,6 +19,8 @@ try {
   process.exit(1);
 }
 
+console.log(googleApplicationCredentials);
+
 const client = new textToSpeech.TextToSpeechClient({
   credentials: googleApplicationCredentials,
 });
