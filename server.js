@@ -17,6 +17,10 @@ const client = new textToSpeech.TextToSpeechClient({
   keyFilename: googleApplicationCredentials,
 });
 
+app.get("/", async (req, res) => {
+  res.send("Audiofy server");
+});
+
 app.post("/synthesize", async (req, res) => {
   const { text, voice, speed } = req.body;
   const request = {
