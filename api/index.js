@@ -14,31 +14,26 @@ const googleApplicationCredentials = JSON.parse(
 );
 
 const client = new textToSpeech.TextToSpeechClient({
-  keyFilename: googleApplicationCredentials,
-});
-
-app.get("/", async (req, res) => {
-  res.send("Audiofy server");
+  credentials: googleApplicationCredentials,
 });
 
 app.post("/synthesize", async (req, res) => {
-  const { text, voice, speed } = req.body;
+  const { text, voice } = req.body;
+  const voiceName = voice === "FEMALE" ? "en-US-Studio-F" : "en-US-Studio-M";
+
   const request = {
-    input: { text },
-    voice: {
-      languageCode: "en-US",
-      ssmlGender: voice,
-      name: voice === "FEMALE" ? "en-US-Studio-O" : "en-US-Studio-M",
-    },
+    input: { text: text },
+    voice: { languageCode: "en-US", ssmlGender: voice, name: voiceName },
     audioConfig: {
       audioEncoding: "MP3",
-      speakingRate: speed,
+      speakingRate: 1.0,
+      pitch: 0.0,
+      volumeGainDb: 0.0,
     },
   };
+
   try {
     const [response] = await client.synthesizeSpeech(request);
-    const outputFile = "output.mp3";
-    console.log(`Audio content written to file: ${outputFile}`);
     res.set("Content-Type", "audio/mpeg");
     res.send(response.audioContent);
   } catch (error) {
@@ -47,7 +42,5 @@ app.post("/synthesize", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Export the app as a serverless function
+module.exports = app;
