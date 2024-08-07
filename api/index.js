@@ -1,13 +1,17 @@
-const express = require("express");
-const textToSpeech = require("@google-cloud/text-to-speech");
-const cors = require("cors");
-const dotenv = require("dotenv");
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import LlamaAI from "llamaai";
+import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+const apiToken = process.env.LLAMA_API_KEY;
+const llamaAPI = new LlamaAI(apiToken);
 
 const googleApplicationCredentials = {
   type: process.env.GOOGLE_TYPE,
@@ -22,12 +26,31 @@ const googleApplicationCredentials = {
   client_x509_cert_url: process.env.GOOGLE_CLIENT_X509_CERT_URL,
 };
 
-const client = new textToSpeech.TextToSpeechClient({
+const client = new TextToSpeechClient({
   credentials: googleApplicationCredentials,
 });
 
 app.get("/", (req, res) => {
   res.json({ app_name: "Audiofy server" });
+});
+
+// Route for content generation
+app.post("/generate", async (req, res) => {
+  const { prompt } = req.body;
+
+  const apiRequestJson = {
+    messages: [{ role: "user", content: prompt }],
+    stream: false,
+  };
+
+  try {
+    const response = await llamaAPI.run(apiRequestJson);
+    const generatedText = response.messages[0].content;
+    res.json({ generatedText });
+  } catch (error) {
+    console.error("Error generating content:", error);
+    res.status(500).send("Error generating content");
+  }
 });
 
 app.post("/synthesize", async (req, res) => {
@@ -60,4 +83,4 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-module.exports = app;
+export default app;
